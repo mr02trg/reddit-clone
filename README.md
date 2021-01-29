@@ -15,3 +15,8 @@
 * [Set up CLI](https://mikro-orm.io/docs/4.3/installation#setting-up-the-commandline-tool)
 * [Configure migration](https://mikro-orm.io/docs/migrations/#configuration)
 * [Perform migration using CLI](https://mikro-orm.io/docs/migrations/#using-via-cli)
+
+# Set up GraphQL server
+* `yarn add express @types/express apollo-server-express graphql type-graphql`
+* Set up express server
+* Set up Apollo server
