@@ -6,6 +6,7 @@ import express from 'express';
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
+import { PostResolver } from "./resolvers/post";
 
 const main = async () => {
   const orm = await MikroORM.init(mkoConfig);
@@ -22,9 +23,14 @@ const main = async () => {
   // set up apollo server
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver],
+      resolvers: [
+        HelloResolver,
+        PostResolver
+      ],
       validate: false
-    })
+    }),
+    // object that can be accessed by all your resolver
+    context: () => ({em: orm.em})
   });
 
   apolloServer.applyMiddleware({ app })
