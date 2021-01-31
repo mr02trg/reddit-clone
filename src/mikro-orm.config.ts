@@ -1,8 +1,10 @@
 import { MikroORM } from "@mikro-orm/core";
 import { __prod__ } from "./constants";
-import { Post } from "./entities/Post";
 import path from 'path';
 require('dotenv').config();
+
+import { Post } from "./entities/Post";
+import { User } from "./entities/User";
 
 export default {
   migrations: {
@@ -10,7 +12,8 @@ export default {
     pattern: /^[\w-]+\d+\.[jt]s$/,
   },
   entities: [
-    Post
+    Post,
+    User
   ],
   dbName: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,

@@ -24,3 +24,5 @@
 # Perform basic CRUD operation with GraphQL
 * Pass MikroORM entity manager (em) to resolver via context
 * Use @ObjectType/@Field decorator on your entity class so the GraphQL resolver understand it
+
+# User Authentication
