@@ -26,3 +26,18 @@
 * Use @ObjectType/@Field decorator on your entity class so the GraphQL resolver understand it
 
 # User Authentication
+* User entity and User GraphQL
+* `yarn add redis connect-redis express-session`
+* `yarn add -D @types/redis @types/express-session @types/connect-redis`
+* Manage user session --> To determine if the user is login
+  * express-session - express middleware --> store user session data server-side, we will use redis as our session in-memory data storage in this project
+  * redis / connect-redis - in memory database
+    * Ensure redis is [installed](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298) on your server
+  * NOTE: you will need to set request.credentials: true in your graphQL playground settings in order to see the cookie being set
+* How this all works??
+  * after user login, `req.session.userId = user.id`. This will create a key-value record in redis that looks sth like this `abcd : {userId: 1}`
+  * express-session will set the cookie in your browser `encrypt('abcd')`
+  * when user send a request, the cookie is sent along `encrypt('abcd')`
+  * decrypt the cookie to `abcd` using the secret we configured for redisStore
+  * retrieve back the `userId` which is stored within redis
+

@@ -5,6 +5,12 @@ import mkoConfig from "./mikro-orm.config";
 import express from 'express';
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
+
+import redis from "redis";
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+require('dotenv').config();
+
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
@@ -21,6 +27,28 @@ const main = async () => {
   // set up express
   const app = express();
 
+  const RedisStore = connectRedis(session)
+  const redisClient = redis.createClient()
+
+  app.use(
+    session({
+      name: 'qid',
+      store: new RedisStore({ 
+        client: redisClient,
+        disableTouch: true
+      }),
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 365, // 1 years
+        httpOnly: true,
+        secure: __prod__,
+        sameSite: 'lax' //csrf
+      },
+      saveUninitialized: false,
+      secret: process.env.REDIS_SECRET as string,
+      resave: false,
+    })
+  )
+
   // set up apollo server
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
@@ -32,7 +60,7 @@ const main = async () => {
       validate: false
     }),
     // object that can be accessed by all your resolver
-    context: () => ({em: orm.em})
+    context: ({req, res}) => ({em: orm.em, req, res})
   });
 
   apolloServer.applyMiddleware({ app })

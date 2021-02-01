@@ -1,6 +1,6 @@
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import argon2 from 'argon2';
 
 @InputType()
@@ -25,6 +25,20 @@ class UserResponse {
 export class UserResolver {
   readonly MIN_PASSWORD_LENGTH = 4;
   readonly MIN_USERNAME_LENGTH = 3;
+
+  // check if user is login
+  @Query(() => User, {nullable: true})
+  async me(
+    @Ctx() { req, em }: MyContext
+  ): Promise<User | null> {
+    // user not login
+    if (! req.session.userId) {
+      return null;
+    }
+
+    const user = await em.findOne(User, {id: req.session.userId});
+    return user;
+  }
 
   @Mutation(() => UserResponse)
   async register(
@@ -51,13 +65,17 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg('userInput') data: UserInput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     try {
       const user = await em.findOneOrFail(User, {username: data.username});
       if (! await argon2.verify(user.password, data.password)) {
         throw 'Incorrect password';
       }
+
+      // set user session after login
+      req.session.userId = user.id;
+      
       return {user};
     } catch(error) {
       return {
