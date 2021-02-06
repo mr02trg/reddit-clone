@@ -3,13 +3,21 @@ import { Wrapper } from '../components/Container';
 import { Formik, Form } from 'formik';
 import { InputField } from '../components/InputField';
 import { Box, Button } from '@chakra-ui/react';
+import { useMutation } from 'urql';
+import { RegisterMutation } from '../graphql/mutations/register.graphql';
 
 const Register = () => {
+  const[, register] = useMutation(RegisterMutation);
+
+  const submit = (values) => {
+    return register(values);
+  }
+
   return (
   <Wrapper size="small">
     <Formik
       initialValues={{username: '', password: ''}}
-      onSubmit = {(values) => console.log(values)}
+      onSubmit = {(values) => submit(values)}
     >
       {({isSubmitting}) => (
         <Form>

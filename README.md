@@ -34,7 +34,7 @@
   * redis / connect-redis - in memory database
     * Ensure redis is [installed](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298) on your server
   * NOTE: you will need to set request.credentials: true in your graphQL playground settings in order to see the cookie being set
-* How this all works??
+* [How this all works??](https://stackoverflow.com/questions/5522020/how-do-sessions-work-in-express-js-with-node-js#:~:text=Overview-,Express.,information%20stored%20on%20the%20server.)
   * after user login, `req.session.userId = user.id`. This will create a key-value record in redis that looks sth like this `abcd : {userId: 1}`
   * express-session will set the cookie in your browser `encrypt('abcd')`
   * when user send a request, the cookie is sent along `encrypt('abcd')`

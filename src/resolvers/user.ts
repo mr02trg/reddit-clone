@@ -13,9 +13,18 @@ class UserInput {
 }
 
 @ObjectType()
+class UserError {
+  @Field({nullable: true})
+  field?: string;
+
+  @Field()
+  errorMsg: string;
+}
+
+@ObjectType()
 class UserResponse {
-  @Field(() => [String], {nullable: true})
-  errors?: string[];
+  @Field(() => [UserError], {nullable: true})
+  errors?: UserError[];
 
   @Field(() => User, {nullable: true})
   user?: User;
@@ -45,23 +54,48 @@ export class UserResolver {
     @Arg('userInput') data: UserInput,
     @Ctx() { em }: MyContext
   ): Promise<UserResponse> {
-    if (data.password.length <= this.MIN_PASSWORD_LENGTH || data.username.length <= this.MIN_USERNAME_LENGTH) {
-      return {
-        errors: ['Invalid username or password']
-      }
+    let errors: UserError[] = [];
+    if (data.password.length < this.MIN_PASSWORD_LENGTH) {
+      errors.push({
+        field: 'password',
+        errorMsg: 'Password is too short'
+      })
     }
+    
+    if (data.username.length < this.MIN_USERNAME_LENGTH) {
+      errors.push({
+        field: 'username',
+        errorMsg: 'Username is too short'
+      })
+    }
+
+    if (errors && errors.length > 0) {
+      return {errors};
+    }
+
     const hashPassword = await argon2.hash(data.password);
     const user = em.create(User, {username: data.username, password: hashPassword});
     try {
       await em.persistAndFlush(user);
     } catch(error) {
       return {
-        errors: ['Failed to create user. Please try again later']
+        errors: [{
+          errorMsg: error?.detail || 'Failed to create user. Please try again later'
+        }]
       }
     };
     return {user};
   }
 
+  // mutation {
+  //   login(userInput: {username: '', password: ''}) {
+  //     errors,
+  //     user {
+  //       id,
+  //       username
+  //     }
+  //   }
+  // }
   @Mutation(() => UserResponse)
   async login(
     @Arg('userInput') data: UserInput,
@@ -79,7 +113,9 @@ export class UserResolver {
       return {user};
     } catch(error) {
       return {
-        errors: ['Incorrect username or password']
+        errors: [{
+          errorMsg: 'Incorrect username or password'
+        }]
       }
     }
   }
