@@ -1,4 +1,4 @@
-export const RegisterMutation = `mutation Register($username: String!, $password: String!) {
+mutation Register($username: String!, $password: String!) {
   register(userInput: {username: $username, password: $password}) {
     errors {
       field,
@@ -11,4 +11,4 @@ export const RegisterMutation = `mutation Register($username: String!, $password
       updatedAt
     }
   }
-}`
+}

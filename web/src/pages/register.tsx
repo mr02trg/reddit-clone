@@ -1,25 +1,48 @@
 import React from 'react';
-import { Wrapper } from '../components/Container';
-import { Formik, Form } from 'formik';
-import { InputField } from '../components/InputField';
 import { Box, Button } from '@chakra-ui/react';
-import { useMutation } from 'urql';
-import { RegisterMutation } from '../graphql/mutations/register.graphql';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import { useRouter } from "next/router";
+import { useRegisterMutation } from '../generated/graphql';
+
+import { Wrapper } from '../components/Container';
+import { InputField } from '../components/InputField';
+import { parseUserError } from '../utils/parseUserError';
 
 const Register = () => {
-  const[, register] = useMutation(RegisterMutation);
+  const router = useRouter();
+  const [, register] = useRegisterMutation();
 
-  const submit = (values) => {
-    return register(values);
-  }
+  const RegisterSchema = Yup.object().shape({
+    username: Yup.string()
+      .required('Required'),
+    password: Yup.string()
+      .required('Required')
+  });
 
   return (
   <Wrapper size="small">
     <Formik
       initialValues={{username: '', password: ''}}
-      onSubmit = {(values) => submit(values)}
+      validationSchema={RegisterSchema}
+      onSubmit = {async (values, { setErrors, setStatus } ) => {
+        setStatus(null);
+        const response = await register(values);
+        if(response.data?.register.errors) {
+          const errors = parseUserError(response.data?.register.errors);
+          console.log(errors);
+          if(typeof errors === 'string') {
+            setStatus(errors);
+          } else {
+            setErrors(errors);
+          }
+        }
+        else if (response.data?.register.user) {
+          router.push("/");
+        }
+      }}
     >
-      {({isSubmitting}) => (
+      {({status, isSubmitting}) => (
         <Form>
           <InputField 
             name="username" 
@@ -37,6 +60,7 @@ const Register = () => {
           </Box>
 
           <Box mt="4">
+            <Box mb="3" color="red">{status}</Box>
             <Button colorScheme="teal" type="submit" isLoading={isSubmitting}>
               Register
             </Button>

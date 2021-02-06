@@ -78,11 +78,20 @@ export class UserResolver {
     try {
       await em.persistAndFlush(user);
     } catch(error) {
-      return {
-        errors: [{
-          errorMsg: error?.detail || 'Failed to create user. Please try again later'
+
+      console.log(error);
+      let err: UserError[];
+      if (error.code == 23505) {
+          err = [{
+            field: 'username',
+            errorMsg: error?.detail
+          }]
+      } else {
+        err = [{
+          errorMsg: 'Failed to create user. Please try again later'
         }]
       }
+      return {errors: err}
     };
     return {user};
   }
