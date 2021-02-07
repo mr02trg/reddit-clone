@@ -52,7 +52,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg('userInput') data: UserInput,
-    @Ctx() { em }: MyContext
+    @Ctx() { req, em }: MyContext
   ): Promise<UserResponse> {
     let errors: UserError[] = [];
     if (data.password.length < this.MIN_PASSWORD_LENGTH) {
@@ -77,6 +77,9 @@ export class UserResolver {
     const user = em.create(User, {username: data.username, password: hashPassword});
     try {
       await em.persistAndFlush(user);
+
+      // log user in after successful register
+      req.session.userId = user.id;
     } catch(error) {
 
       console.log(error);

@@ -3,17 +3,17 @@ import { Box, Button } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from "next/router";
-import { useRegisterMutation } from '../generated/graphql';
 
 import { Wrapper } from '../components/Wrapper';
 import { InputField } from '../components/InputField';
 import { parseUserError } from '../utils/parseUserError';
+import { useLoginMutation } from '../generated/graphql';
 
-const Register = () => {
+const Login = () => {
   const router = useRouter();
-  const [, register] = useRegisterMutation();
+  const[,login] = useLoginMutation();
 
-  const RegisterSchema = Yup.object().shape({
+  const LoginSchema = Yup.object().shape({
     username: Yup.string()
       .required('Required'),
     password: Yup.string()
@@ -24,25 +24,17 @@ const Register = () => {
   <Wrapper size="small">
     <Formik
       initialValues={{username: '', password: ''}}
-      validationSchema={RegisterSchema}
-      onSubmit = {async (values, { setErrors, setStatus } ) => {
-        setStatus(null);
-        const response = await register(values);
-        if(response.data?.register.errors) {
-          const errors = parseUserError(response.data?.register.errors);
-          console.log(errors);
-          if(typeof errors === 'string') {
-            setStatus(errors);
-          } else {
-            setErrors(errors);
-          }
-        }
-        else if (response.data?.register.user) {
+      validationSchema={LoginSchema}
+      onSubmit = {async (values, { setErrors } ) => {
+        const loginResponse = await login(values);
+        if (loginResponse.data?.login.errors) {
+          setErrors(parseUserError(loginResponse.data?.login.errors));
+        } else if (loginResponse.data?.login.user) {
           router.push("/");
         }
       }}
     >
-      {({status, isSubmitting}) => (
+      {({isSubmitting}) => (
         <Form>
           <InputField 
             name="username" 
@@ -60,9 +52,8 @@ const Register = () => {
           </Box>
 
           <Box mt="4">
-            <Box mb="3" color="red">{status}</Box>
             <Button colorScheme="teal" type="submit" isLoading={isSubmitting}>
-              Register
+              Login
             </Button>
           </Box>
           
@@ -73,4 +64,4 @@ const Register = () => {
   );
 }
 
-export default Register;
+export default Login;
