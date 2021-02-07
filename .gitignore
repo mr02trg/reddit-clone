@@ -1,6 +1,6 @@
-dist/*
-node_modules/*
-.env
+server/dist/*
+server/node_modules/*
+server/.env
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
