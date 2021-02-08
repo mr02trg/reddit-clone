@@ -25,16 +25,21 @@ const Login = () => {
     <Formik
       initialValues={{username: '', password: ''}}
       validationSchema={LoginSchema}
-      onSubmit = {async (values, { setErrors } ) => {
+      onSubmit = {async (values, { setStatus, setErrors } ) => {
         const loginResponse = await login(values);
         if (loginResponse.data?.login.errors) {
-          setErrors(parseUserError(loginResponse.data?.login.errors));
+          const errors = parseUserError(loginResponse.data?.login.errors);
+          if(typeof errors === 'string') {
+            setStatus(errors);
+          } else {
+            setErrors(errors);
+          }
         } else if (loginResponse.data?.login.user) {
           router.push("/");
         }
       }}
     >
-      {({isSubmitting}) => (
+      {({status, isSubmitting}) => (
         <Form>
           <InputField 
             name="username" 
@@ -52,6 +57,7 @@ const Login = () => {
           </Box>
 
           <Box mt="4">
+            <Box mb="3" color="red">{status}</Box>
             <Button colorScheme="teal" type="submit" isLoading={isSubmitting}>
               Login
             </Button>

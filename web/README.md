@@ -28,3 +28,6 @@ Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&ut
   * urql will cache your response and will not make another graphql call
     * In this example, the `me` query is not called, thus navbar is not updated after user login/register
   * [manual update with `cache.updateQuery`](https://formidable.com/open-source/urql/docs/graphcache/custom-updates/)
+
+* Fragment 
+  * Better for maintainence your grapql query

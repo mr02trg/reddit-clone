@@ -30,7 +30,6 @@ const Register = () => {
         const response = await register(values);
         if(response.data?.register.errors) {
           const errors = parseUserError(response.data?.register.errors);
-          console.log(errors);
           if(typeof errors === 'string') {
             setStatus(errors);
           } else {
