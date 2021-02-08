@@ -23,3 +23,8 @@ Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&ut
     * `yarn add -D @graphql-codegen/typescript-urql`
     * This will generate `codegen.yml` file
     * This will also add a new script in your package.json, which allows you to genereate graphql type based on your graphql schema at `generated/graphql.tsx`
+
+* urql Custom update
+  * urql will cache your response and will not make another graphql call
+    * In this example, the `me` query is not called, thus navbar is not updated after user login/register
+  * [manual update with `cache.updateQuery`](https://formidable.com/open-source/urql/docs/graphcache/custom-updates/)
