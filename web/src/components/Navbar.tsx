@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Flex, Box, Heading, Spacer, Button } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useMeQuery } from "../generated/graphql";
+import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 
 interface NavbarProps {
 
@@ -10,9 +10,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = () => {
   const router = useRouter();
   const [{data}] = useMeQuery();
-
-  const logOut = () => {
-  }
+  const[{fetching: logOutFetching},logout] = useLogoutMutation();
 
   return (
     <Flex p="3" alignItems="center" bgColor="black">
@@ -24,7 +22,7 @@ export const Navbar: React.FC<NavbarProps> = () => {
         {data?.me ? (
           <Flex alignItems="center">
             <Box color="white" mr="4">Welcome {data?.me.username}!</Box>
-            <Button colorScheme="blue" variant='outline' mr="4" onClick={logOut}>Log Out</Button>
+            <Button colorScheme="blue" variant='outline' mr="4" isLoading={logOutFetching} onClick={() => logout()}>Log Out</Button>
           </Flex>
         ) : (
           <Box>

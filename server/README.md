@@ -40,4 +40,7 @@
   * when user send a request, the cookie is sent along `encrypt('abcd')`
   * decrypt the cookie to `abcd` using the secret we configured for redisStore
   * retrieve back the `userId` which is stored within redis
+* LogOut
+  * `Response.clearCookie()` -> delete the cookie client side. Session data is still stored server side (in redis store for this project)
+  * `Request.session.destroy()` -> invalidate the session in the server
 

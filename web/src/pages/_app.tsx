@@ -3,7 +3,7 @@ import { createClient, dedupExchange, fetchExchange, Provider } from 'urql';
 import { Cache, cacheExchange, QueryInput } from '@urql/exchange-graphcache';
 
 import theme from '../theme'
-import { LoginMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
+import { LoginMutation, LogoutMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
 
 function tsUpdateQuery<Result, QueryData>(
   cache: Cache,
@@ -47,6 +47,16 @@ const client = createClient({
                 return {me: loginResult.register?.user}
               }
             })
+        },
+        logout: (_result, args, cache, info) => {
+          tsUpdateQuery<LogoutMutation, MeQuery>(
+            cache,
+            _result,
+            {query: MeDocument},
+            () => {
+              return {me: null};
+            }
+          )
         }
       }
     }
