@@ -1,8 +1,10 @@
 import React from 'react';
+import { withUrqlClient } from 'next-urql';
 import { Box, Button } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from "next/router";
+import createUrqlClient from '../utils/createUrqlClient';
 
 import { Wrapper } from '../components/Wrapper';
 import { InputField } from '../components/InputField';
@@ -62,7 +64,6 @@ const Login = () => {
               Login
             </Button>
           </Box>
-          
         </Form>
       )}
     </Formik>
@@ -70,4 +71,4 @@ const Login = () => {
   );
 }
 
-export default Login;
+export default withUrqlClient(createUrqlClient)(Login);

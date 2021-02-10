@@ -31,3 +31,8 @@ Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&ut
 
 * Fragment 
   * Better for maintainence your grapql query
+
+## Set up nextjs url server side rendering
+* [Set up nextjs urql ssr](https://formidable.com/open-source/urql/docs/advanced/server-side-rendering/#nextjs)
+* Create a HOC that allow us to specify which page will be SSR
+  * The idea here is to SSR a page with dynamic data loaded and SEO
