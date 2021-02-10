@@ -2,6 +2,7 @@ import React from "react";
 import { Flex, Box, Heading, Spacer, Button } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
+import { isServer } from "../utils/isServer";
 
 interface NavbarProps {
 
@@ -9,7 +10,9 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = () => {
   const router = useRouter();
-  const [{data}] = useMeQuery();
+  const [{data}] = useMeQuery({
+    pause: isServer()
+  });
   const[{fetching: logOutFetching},logout] = useLogoutMutation();
 
   return (

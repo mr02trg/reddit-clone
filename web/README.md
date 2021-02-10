@@ -36,3 +36,6 @@ Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&ut
 * [Set up nextjs urql ssr](https://formidable.com/open-source/urql/docs/advanced/server-side-rendering/#nextjs)
 * Create a HOC that allow us to specify which page will be SSR
   * The idea here is to SSR a page with dynamic data loaded and SEO
+* Since SSR will put more load on our server
+  * We can improve the app by specifying which graphql query/mutation (some query that doesn't make sense to do ssr - no SEO benefit)
+  * You want to pause and execute on the client side, even though the page itself will be executed on the server side
