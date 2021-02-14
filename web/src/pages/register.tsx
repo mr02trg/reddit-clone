@@ -18,6 +18,9 @@ const Register = () => {
   const RegisterSchema = Yup.object().shape({
     username: Yup.string()
       .required('Required'),
+    email: Yup.string()
+      .required('Required')
+      .email('Please enter valid email'),
     password: Yup.string()
       .required('Required')
   });
@@ -25,7 +28,7 @@ const Register = () => {
   return (
   <Wrapper size="small">
     <Formik
-      initialValues={{username: '', password: ''}}
+      initialValues={{username: '', email: '', password: ''}}
       validationSchema={RegisterSchema}
       onSubmit = {async (values, { setErrors, setStatus } ) => {
         setStatus(null);
@@ -49,6 +52,12 @@ const Register = () => {
             name="username" 
             placeholder="username" 
             label="Username"
+            required/>
+          
+          <InputField 
+            name="email" 
+            placeholder="email" 
+            label="Email"
             required/>
           
           <Box mt="4">

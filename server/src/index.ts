@@ -1,6 +1,5 @@
 import { MikroORM } from "@mikro-orm/core";
 import { COOKIE_NAME, __prod__ } from "./constants";
-import { Post } from "./entities/Post";
 import mkoConfig from "./mikro-orm.config";
 import express from 'express';
 import { ApolloServer } from "apollo-server-express";
@@ -19,10 +18,6 @@ const main = async () => {
   const orm = await MikroORM.init(mkoConfig);
   // run all migrations
   await orm.getMigrator().up();
-  // const post = orm.em.create(Post, {title: 'my first post'});
-  // await orm.em.persistAndFlush(post);
-  const posts = await orm.em.find(Post, {});
-  console.log(posts);
 
   // set up express
   const app = express();

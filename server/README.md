@@ -43,4 +43,11 @@
 * LogOut
   * `Response.clearCookie()` -> delete the cookie client side. Session data is still stored server side (in redis store for this project)
   * `Request.session.destroy()` -> invalidate the session in the server
+* Change and reset password
+  * Create new email field for User Entity
+    * Modify register and login workflow
+  * Store one-time token in redis ({ key: token, value: userId }) for forgot password workflow
+    * [ioredis](https://www.npmjs.com/package/ioredis) gives a nicer API to interact with redis store
+  * [Set up email service with nodemail](https://nodemailer.com/about/)
+  * Create Forgot / Reset password page on your front end
 

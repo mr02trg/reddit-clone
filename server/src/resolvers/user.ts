@@ -2,10 +2,12 @@ import { User } from "../entities/User";
 import { MyContext } from "../types";
 import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import argon2 from 'argon2';
+import { includes } from 'lodash';
 import { COOKIE_NAME } from "../constants";
+import { validateUserRegister } from "../utils/userValidationHelper";
 
 @InputType()
-class UserInput {
+export class UserInput {
   @Field()
   username: string;
 
@@ -13,8 +15,14 @@ class UserInput {
   password: string;
 }
 
+@InputType()
+export class UserRegisterRequest extends UserInput {
+  @Field()
+  email: string;
+}
+
 @ObjectType()
-class UserError {
+export class UserError {
   @Field({nullable: true})
   field?: string;
 
@@ -33,8 +41,6 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
-  readonly MIN_PASSWORD_LENGTH = 4;
-  readonly MIN_USERNAME_LENGTH = 3;
 
   // check if user is login
   @Query(() => User, {nullable: true})
@@ -52,30 +58,16 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async register(
-    @Arg('userInput') data: UserInput,
+    @Arg('userInput') data: UserRegisterRequest,
     @Ctx() { req, em }: MyContext
   ): Promise<UserResponse> {
-    let errors: UserError[] = [];
-    if (data.password.length < this.MIN_PASSWORD_LENGTH) {
-      errors.push({
-        field: 'password',
-        errorMsg: 'Password is too short'
-      })
-    }
-    
-    if (data.username.length < this.MIN_USERNAME_LENGTH) {
-      errors.push({
-        field: 'username',
-        errorMsg: 'Username is too short'
-      })
-    }
-
+    const errors = validateUserRegister(data);
     if (errors && errors.length > 0) {
       return {errors};
     }
 
     const hashPassword = await argon2.hash(data.password);
-    const user = em.create(User, {username: data.username, password: hashPassword});
+    const user = em.create(User, {username: data.username, email: data.email, password: hashPassword});
     try {
       await em.persistAndFlush(user);
 
@@ -115,7 +107,12 @@ export class UserResolver {
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     try {
-      const user = await em.findOneOrFail(User, {username: data.username});
+      // user can login with either email or password
+      const user = await em.findOneOrFail(User, 
+        includes(data.username, '@') ? 
+        {email: data.username}: 
+        {username: data.username});
+
       if (! await argon2.verify(user.password, data.password)) {
         throw 'Incorrect password';
       }
