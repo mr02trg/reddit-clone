@@ -1,6 +1,6 @@
 import React from 'react';
 import { withUrqlClient } from 'next-urql';
-import { Box, Button } from '@chakra-ui/react';
+import { Box, Button, Flex } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from "next/router";
@@ -57,13 +57,17 @@ const Login = () => {
               label="Password" 
               required/>
           </Box>
-
           <Box mt="4">
             <Box mb="3" color="red">{status}</Box>
-            <Button colorScheme="teal" type="submit" isLoading={isSubmitting}>
-              Login
-            </Button>
-          </Box>
+            <Flex>
+              <Button colorScheme="teal" mr="auto" type="submit" isLoading={isSubmitting}>
+                Login
+              </Button>
+              <Button color="black" variant="link" onClick={() => router.push("/forgot-password")}>
+                Forgot Password?
+              </Button>
+            </Flex>
+          </Box>          
         </Form>
       )}
     </Formik>

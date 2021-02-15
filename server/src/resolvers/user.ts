@@ -5,6 +5,7 @@ import argon2 from 'argon2';
 import { includes } from 'lodash';
 import { COOKIE_NAME } from "../constants";
 import { validateUserRegister } from "../utils/userValidationHelper";
+import { sendResetPasswordEmail } from "../utils/sendMail";
 
 @InputType()
 export class UserInput {
@@ -144,5 +145,18 @@ export class UserResolver {
         resolve(true);
       });
     });
+  }
+
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg('email') email: string,
+    @Ctx() {em} : MyContext
+  ): Promise<Boolean> {
+    const user = await em.findOne(User, {email});
+    if (!user) {
+      return true;
+    }
+    await sendResetPasswordEmail(user.username, user.email);
+    return true;
   }
 }
