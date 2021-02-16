@@ -32,7 +32,7 @@ async function sendMail(to: string, subject: string, content: string) {
   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 }
 
-export async function sendResetPasswordEmail(username: string, to: string) {
+export async function sendResetPasswordEmail(username: string, to: string, token: string) {
   const subject = "Reset your password"
   const content = `
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -140,7 +140,7 @@ export async function sendResetPasswordEmail(username: string, to: string) {
               <table border="0" cellspacing="0" cellpadding="0">
                 <tr>
                   <td align="center" style="border-radius: 18px;" bgcolor="#0062FF">
-                    <a href="#" style="font-size: 14px; font-family: sans-serif; color: #ffffff; text-decoration: none; border-radius: 18px; padding: 5px 16px; border: 1px solid #0062FF; display: inline-block; box-shadow: 0 2px 3px 0 rgba(0,0,0,0.10);">
+                    <a href="localhost:3000/change-password/${token}" style="font-size: 14px; font-family: sans-serif; color: #ffffff; text-decoration: none; border-radius: 18px; padding: 5px 16px; border: 1px solid #0062FF; display: inline-block; box-shadow: 0 2px 3px 0 rgba(0,0,0,0.10);">
                       <!--[if mso]> <![endif]-->
                       Reset Password
                       <!--[if mso]> <![endif]-->

@@ -1,9 +1,11 @@
-import { User } from "../entities/User";
-import { MyContext } from "../types";
-import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import { v4 as uuidv4 } from 'uuid';
 import argon2 from 'argon2';
 import { includes } from 'lodash';
-import { COOKIE_NAME } from "../constants";
+import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+
+import { User } from "../entities/User";
+import { MyContext } from "../types";
+import { CHANGE_PASSWORD_PREFIX, COOKIE_NAME } from "../constants";
 import { validateUserRegister } from "../utils/userValidationHelper";
 import { sendResetPasswordEmail } from "../utils/sendMail";
 
@@ -150,13 +152,42 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async forgotPassword(
     @Arg('email') email: string,
-    @Ctx() {em} : MyContext
+    @Ctx() {em, redis} : MyContext
   ): Promise<Boolean> {
     const user = await em.findOne(User, {email});
     if (!user) {
       return true;
     }
-    await sendResetPasswordEmail(user.username, user.email);
+    const token = uuidv4();
+    await redis.set(`${CHANGE_PASSWORD_PREFIX}_${token}`, user.id, "ex", 60 * 60 * 1000)
+    await sendResetPasswordEmail(user.username, user.email, token);
     return true;
+  }
+
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg('token') token: string,
+    @Arg('password') password: string,
+    @Ctx() {req, em, redis} : MyContext
+  ): Promise<UserResponse> {
+    const userId = await redis.get(`${CHANGE_PASSWORD_PREFIX}_${token}`)
+    if (userId) {
+      const user = await em.findOne(User, { id: Number(userId) });
+      if (!user) {
+        return {
+          errors: [{errorMsg: 'Invalid token'}]
+        }
+      }
+      user.password = await argon2.hash(password);
+      await em.persistAndFlush(user);
+
+      // delete token and log user in after success
+      await redis.del(`${CHANGE_PASSWORD_PREFIX}_${token}`);
+      req.session.userId = user.id;
+      return {user};
+    }
+    return {
+      errors: [{errorMsg: 'Invalid token'}]
+    }
   }
 }
