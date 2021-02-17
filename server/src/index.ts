@@ -1,6 +1,5 @@
-import { MikroORM } from "@mikro-orm/core";
+import 'reflect-metadata'
 import { COOKIE_NAME, __prod__ } from "./constants";
-import mkoConfig from "./mikro-orm.config";
 import express from 'express';
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -13,11 +12,11 @@ require('dotenv').config();
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
+import { createConnection } from "typeorm";
 
 const main = async () => {
-  const orm = await MikroORM.init(mkoConfig);
-  // run all migrations
-  await orm.getMigrator().up();
+  // db connection
+  await createConnection();
 
   // set up express
   const app = express();
@@ -55,7 +54,7 @@ const main = async () => {
       validate: false
     }),
     // object that can be accessed by all your resolver
-    context: ({req, res}) => ({em: orm.em, req, res, redis: redisClient})
+    context: ({req, res}) => ({req, res, redis: redisClient})
   });
 
   apolloServer.applyMiddleware({ 
